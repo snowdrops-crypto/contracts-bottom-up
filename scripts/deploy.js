@@ -57,14 +57,15 @@ const main = async (scriptName) => {
   }
 
   if (hre.network.name === 'hardhat') {
-    let [snowdropsFacet, itemsFacet] = await deployFacets('SnowdropsFacet', 'ItemsFacet')
+    let [snowdropFacet, itemFacet, metaTransactionFacet] = await deployFacets('SnowdropFacet', 'ItemFacet', 'MetaTransactionFacet')
 
     const snowdropsDiamond = await diamondUtils.deploy({
       diamondName: 'SnowdropsDiamond',
       initDiamond: 'InitDiamond',
       facets: [
-        ['SnowdropsFacet', snowdropsFacet],
-        ['ItemsFacet', itemsFacet]
+        ['SnowdropFacet', snowdropFacet],
+        ['ItemFacet', itemFacet],
+        ['MetaTransactionFacet', metaTransactionFacet]
       ],
       owner: account,
       args: [[name, symbol]]
@@ -80,8 +81,9 @@ const main = async (scriptName) => {
 
     // Get Diamond Facets
     const diamondLoupeFacet = await ethers.getContractAt('DiamondLoupeFacet', snowdropsDiamond.address)
-    snowdropsFacet = await ethers.getContractAt('SnowdropsFacet', snowdropsDiamond.address)
-    itemsFacet = await ethers.getContractAt('ItemsFacet', snowdropsDiamond.address)
+    snowdropFacet = await ethers.getContractAt('SnowdropFacet', snowdropsDiamond.address)
+    itemFacet = await ethers.getContractAt('ItemFacet', snowdropsDiamond.address)
+    metaTransactionFacet = await ethers.getContractAt('MetaTransactionFacet', metaTransactionFacet.address)
 
     console.log('Total gas used: ' + strDisplay(totalGasUsed))
 
@@ -89,8 +91,8 @@ const main = async (scriptName) => {
       account: account,
       snowdropsDiamond: snowdropsDiamond,
       diamondLoupeFacet: diamondLoupeFacet,
-      snowdropsFacet: snowdropsFacet,
-      itemsFacet: itemsFacet
+      snowdropFacet: snowdropFacet,
+      itemFacet: itemFacet
     }
   } else {
     //void

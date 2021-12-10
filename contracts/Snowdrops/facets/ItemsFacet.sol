@@ -4,7 +4,8 @@ pragma solidity 0.8.7;
 import {AppStorage, LibAppStorage, Modifiers} from "../libraries/LibAppStorage.sol";
 import "hardhat/console.sol";
 
-contract ItemsFacet {
+contract ItemFacet {
+  
   function testFunc() external pure returns(uint256 val) {
     val = 10;
   }
