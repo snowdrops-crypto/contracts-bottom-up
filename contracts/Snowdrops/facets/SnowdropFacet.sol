@@ -6,6 +6,7 @@ import {LibSnowdrop, SnowdropInfo} from "../libraries/LibSnowdrop.sol";
 import {LibStrings} from "../../shared/libraries/LibStrings.sol";
 import {LibERC721} from "../../shared/libraries/LibERC721.sol";
 import {LibMeta} from "../../shared/libraries/LibMeta.sol";
+
 import "hardhat/console.sol";
 
 contract SnowdropFacet {
@@ -96,6 +97,25 @@ contract SnowdropFacet {
     LibERC721.checkOnERC721Received(sender, _from, _to, _tokenId, _data);
   }
 
+  function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _tokenIds, bytes calldata _data) external {
+    address sender = LibMeta.msgSender();
+    for (uint256 index = 0; index < _tokenIds.length; index++) {
+      uint256 _tokenId = _tokenIds[index];
+      internalTransferFrom(sender, _from, _to, _tokenId);
+      LibERC721.checkOnERC721Received(sender, _from, _to, _tokenId, _data);
+    }
+  }
+
+  function safeTransferFrom(address _from, address _to, uint256 _tokenId) external {
+    address sender = LibMeta.msgSender();
+    internalTransferFrom(sender, _from, _to, _tokenId);
+    LibERC721.checkOnERC721Received(sender, _from, _to, _tokenId, "");
+  }
+
+  function transferFrom(address _from, address _to, uint256 _tokenId) external {
+    internalTransferFrom(LibMeta.msgSender(), _from, _to, _tokenId);
+  }
+
   function internalTransferFrom(address _sender, address _from, address _to, uint256 _tokenId) internal {
     require(_to != address(0), "SnowdropFacet: Can't transfer to address 0, transfer failed");
     require(_from != address(0), "SnowdropFacet: Can't transfer from address 0, transfer failed");
@@ -104,12 +124,14 @@ contract SnowdropFacet {
       _sender == _from || s.snowdropOperators[_from][_sender] || _sender == s.snowdropApproved[_tokenId],
       "SnowdropFacet: Not owner or approved to transfer"
     );
-    LibSnowdrop.transfer(_from, _to, _tokenId);
+    LibSnowdrop.transferSnowdrop(_from, _to, _tokenId);
     // UPDATE MARKET LISTING
   }
 
   // My FUNCTIONS
   function mint(address _to) external {
+    // Get Matic Price from chainlink.
+    // require(msg.value > 10 ** 15, "SnowdropsFacet: Transaction did not contain the required amount");
     require(_to != address(0), "SnowdropsFacet: snowdrop can't be sent to address 0");
     
     console.log("sender of message %s", msg.sender);
@@ -149,7 +171,6 @@ contract SnowdropFacet {
     // uint256 dec = 10 ** 8;
     // require(msg.value >= 0.001, "Less than minimum amount received.");
 
-    console.log('value sent: %s', msg.value);
     emit AmountPaid(msg.sender, msg.value);
   }
 }

@@ -8,6 +8,9 @@ import {IDiamondCut} from "../shared/interfaces/IDiamondCut.sol";
 import {IERC165} from "../shared/interfaces/IERC165.sol";
 import {IDiamondLoupe} from "../shared/interfaces/IDiamondLoupe.sol";
 import {IERC173} from "../shared/interfaces/IERC173.sol";
+import {ILink} from "./interfaces/ILink.sol";
+
+import "hardhat/console.sol";
 
 contract InitDiamond {
   AppStorage internal s;
@@ -15,6 +18,10 @@ contract InitDiamond {
   struct Args {
     string name;
     string symbol;
+    bytes32 chainlinkKeyHash;
+    uint256 chainlinkFee;
+    address vrfCoordinator;
+    address linkAddress;
   }
 
   function init(Args memory _args) external {
@@ -27,5 +34,10 @@ contract InitDiamond {
 
     s.name = _args.name;
     s.symbol = _args.symbol;
+
+    s.clKeyHash = _args.chainlinkKeyHash;
+    s.clFee = uint144(_args.chainlinkFee);
+    s.clVrfCoordinator = _args.vrfCoordinator;
+    s.link = ILink(_args.linkAddress);
   }
 }
