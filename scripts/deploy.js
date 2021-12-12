@@ -74,7 +74,7 @@ const main = async (scriptName) => {
     let [snowdropFacet, itemFacet, metaTransactionFacet, vrfFacet] = await deployFacets('SnowdropFacet', 'ItemFacet', 'MetaTransactionFacet', 'VRFFacet')
 
     const snowdropsDiamond = await diamondUtils.deploy({
-      diamondName: 'SnowdropsDiamond',
+      diamondName: 'SnowdropsDiamondTest1',
       initDiamond: 'InitDiamond',
       facets: [
         ['SnowdropFacet', snowdropFacet],

@@ -7,6 +7,7 @@ pragma solidity 0.8.7;
 import {AppStorage, LibAppStorage, Modifiers} from "../libraries/LibAppStorage.sol";
 import {LibMeta} from "../../shared/libraries/LibMeta.sol";
 import {LibSnowdrop} from "../libraries/LibSnowdrop.sol";
+import {LibVRF} from "../libraries/LibVRF.sol";
 import {LibItem} from "../libraries/LibItem.sol";
 import {ILink} from "../interfaces/ILink.sol";
 
@@ -64,10 +65,18 @@ contract VRFFacet is Modifiers {
 
   function mintSnowdrop(address _to) external payable {
     LibSnowdrop.mintSnowdrop(_to);
-  } 
+  }
+
+  function testMint(uint256 _tokenId) external {
+    console.log("VRFFacet::testMint");
+    drawRandomNumber(_tokenId, 1);
+  }
 
   function buyPack(uint8 numberOfPacks) external payable {
-    require(numberOfPacks < 3, "VRFFacet: Requested invalid number of packs");
+    require(LibMeta.msgSender() != address(0), "VRF::buyPack: address 0 cannot call this function");
+    require(msg.value >= 10 ** 14, "Less than minimum amount received.");
+    require(numberOfPacks < 3, "VRFFacet::buyPack: Requested invalid number of packs");
+
     uint8 totalItems;
     if (numberOfPacks == 0) {
       totalItems = 10;
@@ -77,29 +86,74 @@ contract VRFFacet is Modifiers {
       totalItems = 50;
     }
 
-    LibItem.mintItemsTo(LibMeta.msgSender(), totalItems);
+    // LibItem.mintItemsTo(LibMeta.msgSender(), totalItems);
+    drawRandomNumber(0, 2);
   }
 
-  function drawRandomNumber(uint256 _tokenId) internal {
+  function drawRandomNumber(uint256 _tokenId, uint8 rType) internal {
     s.snowdrops[_tokenId].status = LibSnowdrop.STATUS_VRF_PENDING;
+    uint144 fee = s.clFee;
+    require(s.link.balanceOf(address(this)) >= fee, "VRFFacet: Not enough Link to pay fee");
+    bytes32 l_keyHash = s.clKeyHash;
+    require(s.link.transferAndCall(s.clVrfCoordinator, fee, abi.encode(l_keyHash, 0)), "VRFFacet: link transfer failed");
+    uint256 vrfSeed = uint256(keccak256(abi.encode(l_keyHash, 0, address(this), s.vrfNonces[l_keyHash])));
+    s.vrfNonces[l_keyHash]++;
+    bytes32 requestId = keccak256(abi.encodePacked(l_keyHash, vrfSeed));
+    s.vrfRequestIdToTokenId[requestId] = _tokenId;
+    console.log("VRFFacet:drawRandomeNumber: End of draw");
+
+    //TESTING
+    tempFulfillRandomness(requestId, uint256(keccak256(abi.encodePacked(block.number, _tokenId))));
+  }
+
+  // function rawFulfillRandomness(bytes32 _requestId, uint256 _randomNumber) external {
+  //   require(LibMeta.msgSender() == s.clVrfCoordinator, "Only vrfCoordinator can fulfill");
+    
+  //   uint256 tokenId = s.vrfRequestIdToTokenId[_requestId];
+  //   require(s.snowdrops[tokenId].vrfRequestId != _requestId || s.items[tokenId].vrfRequestId != _requestId, "VRFFacet: TokenID not found for snowdrop or item");
+
+  //   if (s.snowdrops[tokenId].vrfRequestId == _requestId) {
+  //     require(s.snowdrops[tokenId].status == LibSnowdrop.STATUS_VRF_PENDING);
+  //     s.snowdrops[tokenId].randomNumber = _randomNumber;
+  //     s.snowdrops[tokenId].status = LibSnowdrop.STATUS_VRF_FULFILLED;
+  //   } else if (s.items[tokenId].vrfRequestId == _requestId) {
+  //     require(s.items[tokenId].status == LibSnowdrop.STATUS_VRF_PENDING);
+  //     s.items[tokenId].randomNumber = _randomNumber;
+  //     s.items[tokenId].status = LibSnowdrop.STATUS_VRF_FULFILLED;
+  //   } else {
+  //     console.log("VRFFacet: Something went wrong, snowdrop and item did not match requestId.");
+  //   }
+  // }
+
+  function tempFulfillRandomness(bytes32 _requestId, uint256 _randomNumber) internal {
+    uint256 tokenId = s.vrfRequestIdToTokenId[_requestId];
+    require(s.snowdrops[tokenId].status == LibVRF.STATUS_VRF_PENDING, "VRFFacet: Vrf is not pending");
+    s.snowdrops[tokenId].status = LibVRF.STATUS_VRF_FULFILLED;
+    s.snowdropIdToRandomNumber[tokenId] = _randomNumber;
+
+    emit VrfRandomNumber(tokenId, _randomNumber, block.timestamp);
   }
 
   function rawFulfillRandomness(bytes32 _requestId, uint256 _randomNumber) external {
+    console.log("VRFFacet: rawFulfillRandomness called");
     require(LibMeta.msgSender() == s.clVrfCoordinator, "Only vrfCoordinator can fulfill");
     
     uint256 tokenId = s.vrfRequestIdToTokenId[_requestId];
-    require(s.snowdrops[tokenId].vrfRequestId != _requestId || s.items[tokenId].vrfRequestId != _requestId, "VRFFacet: TokenID not found for snowdrop or item");
+    require(s.snowdrops[tokenId].vrfRequestId != _requestId, "VRFFacet: TokenID not found for snowdrop or item");
 
     if (s.snowdrops[tokenId].vrfRequestId == _requestId) {
       require(s.snowdrops[tokenId].status == LibSnowdrop.STATUS_VRF_PENDING);
       s.snowdrops[tokenId].randomNumber = _randomNumber;
       s.snowdrops[tokenId].status = LibSnowdrop.STATUS_VRF_FULFILLED;
-    } else if (s.items[tokenId].vrfRequestId == _requestId) {
-      require(s.items[tokenId].status == LibSnowdrop.STATUS_VRF_PENDING);
-      s.items[tokenId].randomNumber = _randomNumber;
-      s.items[tokenId].status = LibSnowdrop.STATUS_VRF_FULFILLED;
     } else {
       console.log("VRFFacet: Something went wrong, snowdrop and item did not match requestId.");
+    }
+  }
+
+  function expandRandom(uint256 randomValue, uint256 n) internal pure returns (uint256[] memory expandedRandoms) {
+    expandedRandoms = new uint256[](n);
+    for (uint256 i = 0; i < n; i++) {
+      expandedRandoms[i] = uint256(keccak256((abi.encode(randomValue, i))));
     }
   }
 

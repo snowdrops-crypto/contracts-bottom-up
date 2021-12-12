@@ -34,44 +34,46 @@ module.exports = {
       timeout: 120000,
       gas: "auto",
     },
+    localhost: {
+      timeout: 16000000
+    },
     // hardhat: {
     //   forking: {
     //     url: `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`
     //   }
     // },
     // alchemyPolygon: {
-
     // },
     // maticMainnet: {
     //   url: 'https://polygon-rpc.com/',
     //   chainId: 137,
-    //   accounts: [PRIVATE_KEY]
+    //   accounts: [SNOWDROPS_ETH_PRIVATE]
     // },
-    // maticMumbai: {
-    //   url: 'https://rpc-mumbai.maticvigil.com',
-    //   chainId: 80001,
-    //   accounts: [PRIVATE_KEY]
-    // },
+    maticMumbai: {
+      url: 'https://rpc-mumbai.maticvigil.com',
+      chainId: 80001,
+      accounts: [process.env.SNOWDROPS_ETH_PRIVATE]
+    },
     // avaxMainnet: {
     //   url: 'https://api.avax.network/ext/bc/C/rpc',
     //   gasPrice: 225000000000,
     //   chainId: 43114,
-    //   accounts: [PRIVATE_KEY]
+    //   accounts: [SNOWDROPS_ETH_PRIVATE]
     // },
     // avaxFuji: {
     //   url: 'https://api.avax-test.network/ext/bc/C/rpc',
     //   gasPrice: 225000000000,
     //   chainId: 43113,
-    //   accounts: [PRIVATE_KEY]
+    //   accounts: [SNOWDROPS_ETH_PRIVATE]
     // },
     // harmonyMainnet: {
     //   url: `https://api.harmony.one`,
     //   chainId: 1666600000,
-    //   accounts: [PRIVATE_KEY]
+    //   accounts: [SNOWDROPS_ETH_PRIVATE]
     // },
     // harmonyTestnet: {
     //   url: `https://api.s0.b.hmny.io`,
-    //   accounts: [PRIVATE_KEY]
+    //   accounts: [SNOWDROPS_ETH_PRIVATE]
     // }
   },
   gasReporter: {

@@ -91,5 +91,9 @@ describe('Deploying Contracts', async () => {
     it('gets the keyHash', async () => {
       console.log(await deployVars.vrfFacet.keyHash())
     })
+
+    it('draws randomenss', async () => {
+      await deployVars.vrfFacet.testMint('1');
+    })
   })
 })
