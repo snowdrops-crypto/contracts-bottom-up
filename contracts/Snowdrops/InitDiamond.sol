@@ -39,5 +39,7 @@ contract InitDiamond {
     s.clFee = uint144(_args.chainlinkFee);
     s.clVrfCoordinator = _args.vrfCoordinator;
     s.link = ILink(_args.linkAddress);
+
+    s.baseUri = "https://snowdrops.nft/metadata";
   }
 }

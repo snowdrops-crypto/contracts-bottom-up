@@ -48,7 +48,7 @@ struct ItemToSnowdrop {
 struct AppStorage {
   string name;
   string symbol;
-  uint256 test;
+  string baseUri;
 
   // Snowdrops
   uint32[] snowdropIds; // uint256 ID -> Token
@@ -63,6 +63,7 @@ struct AppStorage {
 
   // Items
   Item[] items;
+  string itemsBaseUri;
   mapping(address => mapping(uint256 => uint256[])) nftItems;
   mapping(address => mapping(uint256 => mapping(uint256 => uint256))) nftItemBalances;
   // indexes are stored 1 higher so that 0 means no items in items array

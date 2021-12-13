@@ -12,7 +12,6 @@ import "hardhat/console.sol";
 contract SnowdropFacet {
   AppStorage internal s;
 
-  event TestVarModified(address indexed _modifier, uint256 _test);
   event AmountPaid(address indexed _sender, uint256 amount);
   event MintedSnowdrop(Snowdrop indexed sd);
 
@@ -157,16 +156,6 @@ contract SnowdropFacet {
   }
 
   // TEST FUNCTIONS
-  function setTestVar(uint256 _test) external {
-    console.log('setTestVar Called with: %s', _test);
-    s.test = _test;
-    emit TestVarModified(msg.sender, s.test);
-  }
-
-  function getTestVar() external view returns(uint256) {
-    return s.test;
-  }
-
   function paySomething() external payable {
     // uint256 dec = 10 ** 8;
     // require(msg.value >= 0.001, "Less than minimum amount received.");

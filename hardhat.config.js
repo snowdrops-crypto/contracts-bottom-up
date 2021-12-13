@@ -49,7 +49,7 @@ module.exports = {
     //   chainId: 137,
     //   accounts: [SNOWDROPS_ETH_PRIVATE]
     // },
-    maticMumbai: {
+    mumbai: {
       url: 'https://rpc-mumbai.maticvigil.com',
       chainId: 80001,
       accounts: [process.env.SNOWDROPS_ETH_PRIVATE]

@@ -68,8 +68,8 @@ contract VRFFacet is Modifiers {
   }
 
   function testMint(uint256 _tokenId) external {
-    console.log("VRFFacet::testMint");
-    drawRandomNumber(_tokenId, 1);
+    // console.log("VRFFacet::testMint");
+    drawRandomNumberSnowdrop(_tokenId);
   }
 
   function buyPack(uint8 numberOfPacks) external payable {
@@ -87,23 +87,38 @@ contract VRFFacet is Modifiers {
     }
 
     // LibItem.mintItemsTo(LibMeta.msgSender(), totalItems);
-    drawRandomNumber(0, 2);
+    drawRandomNumberItem(0);
   }
 
-  function drawRandomNumber(uint256 _tokenId, uint8 rType) internal {
+  function drawRandomNumberSnowdrop(uint256 _tokenId) internal {
     s.snowdrops[_tokenId].status = LibSnowdrop.STATUS_VRF_PENDING;
     uint144 fee = s.clFee;
-    require(s.link.balanceOf(address(this)) >= fee, "VRFFacet: Not enough Link to pay fee");
     bytes32 l_keyHash = s.clKeyHash;
+    require(s.link.balanceOf(address(this)) >= fee, "VRFFacet: Not enough Link to pay fee");
     require(s.link.transferAndCall(s.clVrfCoordinator, fee, abi.encode(l_keyHash, 0)), "VRFFacet: link transfer failed");
     uint256 vrfSeed = uint256(keccak256(abi.encode(l_keyHash, 0, address(this), s.vrfNonces[l_keyHash])));
     s.vrfNonces[l_keyHash]++;
     bytes32 requestId = keccak256(abi.encodePacked(l_keyHash, vrfSeed));
     s.vrfRequestIdToTokenId[requestId] = _tokenId;
-    console.log("VRFFacet:drawRandomeNumber: End of draw");
+    // console.log("VRFFacet:drawRandomeNumber: End of draw");
 
     //TESTING
-    tempFulfillRandomness(requestId, uint256(keccak256(abi.encodePacked(block.number, _tokenId))));
+    // tempFulfillRandomness(requestId, uint256(keccak256(abi.encodePacked(block.number, _tokenId))));
+  }
+
+  function drawRandomNumberItem(uint256 _packId) internal {
+    uint144 fee = s.clFee;
+    bytes32 l_keyHash = s.clKeyHash;
+    require(s.link.balanceOf(address(this)) >= fee, "VRFFacet: Not enough Link to pay fee");
+    require(s.link.transferAndCall(s.clVrfCoordinator, fee, abi.encode(l_keyHash, 0)), "VRFFacet: link transfer failed");
+    uint256 vrfSeed = uint256(keccak256(abi.encode(l_keyHash, 0, address(this), s.vrfNonces[l_keyHash])));
+    s.vrfNonces[l_keyHash]++;
+    bytes32 requestId = keccak256(abi.encodePacked(l_keyHash, vrfSeed));
+    // s.vrfRequestIdToTokenId[requestId] = _tokenId;
+    // console.log("VRFFacet:drawRandomeNumber: End of draw");
+
+    //TESTING
+    tempFulfillRandomness(requestId, uint256(keccak256(abi.encodePacked(block.number, _packId))));
   }
 
   // function rawFulfillRandomness(bytes32 _requestId, uint256 _randomNumber) external {
@@ -135,7 +150,7 @@ contract VRFFacet is Modifiers {
   }
 
   function rawFulfillRandomness(bytes32 _requestId, uint256 _randomNumber) external {
-    console.log("VRFFacet: rawFulfillRandomness called");
+    // console.log("VRFFacet: rawFulfillRandomness called");
     require(LibMeta.msgSender() == s.clVrfCoordinator, "Only vrfCoordinator can fulfill");
     
     uint256 tokenId = s.vrfRequestIdToTokenId[_requestId];
@@ -146,7 +161,7 @@ contract VRFFacet is Modifiers {
       s.snowdrops[tokenId].randomNumber = _randomNumber;
       s.snowdrops[tokenId].status = LibSnowdrop.STATUS_VRF_FULFILLED;
     } else {
-      console.log("VRFFacet: Something went wrong, snowdrop and item did not match requestId.");
+      // console.log("VRFFacet: Something went wrong, snowdrop and item did not match requestId.");
     }
   }
 
