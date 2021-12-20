@@ -127,7 +127,7 @@ contract SnowdropFacet {
     // UPDATE MARKET LISTING
   }
 
-  // My FUNCTIONS
+  // TESTER FUNCTIONS
   function mint(address _to) external {
     // Get Matic Price from chainlink.
     // require(msg.value > 10 ** 15, "SnowdropsFacet: Transaction did not contain the required amount");

@@ -1,41 +1,27 @@
 /* global ethers hre */
 
 const diamondUtils = require('./lib/diamond-util/src/index')
-
-function addCommas(nStr) {
-  nStr += ''
-  const x = nStr.split('.')
-  let x1 = x[0]
-  const x2 = x.length > 1 ? '.' + x[1] : ''
-  var rgx = /(\d+)(\d{3})/
-  while (rgx.test(x1)) {
-    x1 = x1.replace(rgx, '$1' + ',' + '$2')
-  }
-  return x1 + x2
-}
-
-function strDisplay (str) {
-  return addCommas(str.toString())
-}
+const deployUtils = require('./lib/deploy-utils')
 
 const main = async (scriptName) => {
   console.log('Script Name: ', scriptName)
 
+  let totalGasUsed = ethers.BigNumber.from('0')
+  let tx, receipt
+
+  const accounts = await ethers.getSigners()
+  const account = await accounts[0].getAddress()
+
   const gasLimit = 12300000
   const name = 'Snowdrops'
   const symbol = 'SNOWDROPS'
+  const snowdropsAddress = '0xE7635787CB5B41C47E08107087290e996e60464c'
 
   // Chainlink Variables (Set for Mumbai)
   const chainlinkKeyHash = '0x6e75b569a01ef56d18cab6a8e71e6600d6ce853834d4a5748b720d06f878b3a4'
   const chainlinkFee = ethers.utils.parseEther('0.0001')
   const vrfCoordinator = '0x8C7382F9D8f56b33781fE506E897a4F1e2d17255'
   let linkAddress = ''
-
-  let totalGasUsed = ethers.BigNumber.from('0')
-  let tx, receipt, fee
-
-  const accounts = await ethers.getSigners()
-  const account = await accounts[0].getAddress()
 
   const deployFacets = async (...facets) => {
     const instances = []
@@ -54,7 +40,7 @@ const main = async (scriptName) => {
       tx = facetInstance.deployTransaction
       receipt = await tx.wait()
   
-      console.log(`${facet} deploy gas used:` + strDisplay(receipt.gasUsed))
+      console.log(`${facet} deploy gas used:` + deployUtils.strDisplay(receipt.gasUsed))
       totalGasUsed = totalGasUsed.add(receipt.gasUsed)
       instances.push(facetInstance)
 
@@ -83,7 +69,7 @@ const main = async (scriptName) => {
         ['VRFFacet', vrfFacet]
       ],
       owner: account,
-      args: [[name, symbol, chainlinkKeyHash, chainlinkFee, vrfCoordinator, linkAddress]]
+      args: [[name, symbol, snowdropsAddress, chainlinkKeyHash, chainlinkFee, vrfCoordinator, linkAddress]]
     })
 
     console.log('Snowdrops diamond address:' + snowdropsDiamond.address)
@@ -101,7 +87,7 @@ const main = async (scriptName) => {
     metaTransactionFacet = await ethers.getContractAt('MetaTransactionFacet', snowdropsDiamond.address)
     vrfFacet = await ethers.getContractAt('VRFFacet', snowdropsDiamond.address)
 
-    console.log('Total gas used: ' + strDisplay(totalGasUsed))
+    console.log('Total gas used: ' + deployUtils.strDisplay(totalGasUsed))
 
     return {
       account: account,

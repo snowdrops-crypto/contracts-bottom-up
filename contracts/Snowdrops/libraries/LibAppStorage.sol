@@ -49,6 +49,7 @@ struct AppStorage {
   string name;
   string symbol;
   string baseUri;
+  address snowdropsAddress;
 
   // Snowdrops
   uint32[] snowdropIds; // uint256 ID -> Token

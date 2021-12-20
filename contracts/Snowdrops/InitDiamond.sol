@@ -18,6 +18,7 @@ contract InitDiamond {
   struct Args {
     string name;
     string symbol;
+    address snowdropsAddress;
     bytes32 chainlinkKeyHash;
     uint256 chainlinkFee;
     address vrfCoordinator;
@@ -41,5 +42,7 @@ contract InitDiamond {
     s.link = ILink(_args.linkAddress);
 
     s.baseUri = "https://snowdrops.nft/metadata";
+
+    s.snowdropsAddress = _args.snowdropsAddress;
   }
 }

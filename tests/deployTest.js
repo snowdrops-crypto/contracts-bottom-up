@@ -19,15 +19,6 @@ describe('Deploying Contracts', async () => {
   })
 
   describe('SnowdropFacet', async () => {
-    it('prints the deploy vars', async () => {
-      expect(await deployVars.snowdropFacet.setTestVar(10))
-        .to.emit(deployVars.snowdropFacet, 'TestVarModified')
-        .withArgs(owner.address, 10)
-  
-      expect(await deployVars.snowdropFacet.getTestVar())
-        .to.equal(10)
-    })
-  
     it('calls paySomething', async () => {
       console.log(ethers.utils.parseEther('1.0'))
       expect(
