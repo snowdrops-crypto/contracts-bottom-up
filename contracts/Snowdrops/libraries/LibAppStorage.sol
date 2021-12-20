@@ -81,6 +81,8 @@ struct AppStorage {
 
   //VRF
   mapping(bytes32 => uint256) vrfRequestIdToTokenId;
+  mapping(bytes32 => uint8) vrfRequestType;
+  mapping(bytes32 => uint8) vrfRequestStatus;
   mapping(bytes32 => uint256) vrfNonces;
   bytes32 clKeyHash;
   uint144 clFee;

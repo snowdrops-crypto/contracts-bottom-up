@@ -83,8 +83,8 @@ describe('Deploying Contracts', async () => {
       console.log(await deployVars.vrfFacet.keyHash())
     })
 
-    it('draws randomenss', async () => {
-      await deployVars.vrfFacet.testMint('1');
+    it('calls drawRandomNumberItem', async () => {
+      await deployVars.vrfFacet.drawRandomNumberItem(10);
     })
   })
 })
