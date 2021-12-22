@@ -42,6 +42,7 @@ contract InitDiamond {
     s.link = ILink(_args.linkAddress);
 
     s.baseUri = "https://snowdrops.nft/metadata";
+    s.domainSeparator = LibMeta.domainSeparator("SnowdropsDiamond", "V1");
 
     s.snowdropsAddress = _args.snowdropsAddress;
   }

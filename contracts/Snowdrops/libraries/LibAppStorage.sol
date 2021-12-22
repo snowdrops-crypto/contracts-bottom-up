@@ -10,7 +10,6 @@ struct Snowdrop {
   string message;
   uint256 claimTime;
   uint8 occassion;
-  uint32[] items; //index of owned items
   bool locked;
   uint256 randomNumber;
   uint8 status;
@@ -22,18 +21,26 @@ struct Item {
   uint256 claimTime;
   uint256 maxQuantity;
   uint256 totalQuantity;
-  uint8 dataType; // 0 image, 1 3d object, 2 
+  uint8 dataType; // 0 image, 1 3d object, 2 video
   bool canBePurchased;
   bool canBeTransferred;
 }
 
-struct ItemToSnowdrop {
-  address itemAddress;
-  address ownerAddress;
-  uint8 surface; // 0 unnassigned, 1 li, 2 ri, 3 lo, 4 ro
+struct TestStruct {
+  uint8 x;
+  uint256 positionX;
+  uint256 positionY;
+  uint256 positionZ;
+  uint256 scaleX;
+  uint256 scaleY;
+  uint256 scaleZ;
+  uint256 rotationX;
+  uint256 rotationY;
+  uint256 rotationZ;
+}
 
-  // x100 from front to contract
-  // /100 from contract to front
+struct ItemToSnowdrop {
+  uint8 surface; // 0 unnassigned, 1 li, 2 ri, 3 lo, 4 ro
   uint256 positionX;
   uint256 positionY;
   uint256 positionZ;
@@ -49,7 +56,10 @@ struct AppStorage {
   string name;
   string symbol;
   string baseUri;
+  
   address snowdropsAddress;
+  address dao;
+  address daoTreasury;
 
   // Snowdrops
   uint32[] snowdropIds; // uint256 ID -> Token
@@ -141,17 +151,17 @@ contract Modifiers {
     _;
   }
 
-  // modifier onlyDao() {
-  //   address sender = LibMeta.msgSender();
-  //   require(sender == s.dao, "Only DAO can call this function");
-  //   _;
-  // }
+  modifier onlyDao() {
+    address sender = LibMeta.msgSender();
+    require(sender == s.dao, "Only DAO can call this function");
+    _;
+  }
 
-  // modifier onlyDaoOrOwner() {
-  //   address sender = LibMeta.msgSender();
-  //   require(sender == s.dao || sender == LibDiamond.contractOwner(), "LibAppStorage: Do not have access");
-  //   _;
-  // }
+  modifier onlyDaoOrOwner() {
+    address sender = LibMeta.msgSender();
+    require(sender == s.dao || sender == LibDiamond.contractOwner(), "LibAppStorage: Do not have access");
+    _;
+  }
 
   // modifier onlyOwnerOrDaoOrGameManager() {
   //   address sender = LibMeta.msgSender();

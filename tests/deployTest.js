@@ -5,6 +5,26 @@ const getBalance = async (account) => {
   console.log(`Address: ${account.address}, balance: ${ethers.utils.formatEther(await account.getBalance())}`)
 }
 
+const generateDimensions = (num) => {
+  const dims = []
+  for (let i = 0; i < num; i++) {
+    const surface = (Math.floor(Math.random() * 4)).toPrecision(2).toString()
+    dims.push({
+      surface: ethers.utils.parseUnits(surface, 0),
+      positionX: ethers.utils.parseUnits('1.0', 0),
+      positionY: ethers.utils.parseUnits('1.0', 0),
+      positionZ: ethers.utils.parseUnits('1.0', 0),
+      scaleX: ethers.utils.parseUnits('1.0', 0),
+      scaleY: ethers.utils.parseUnits('1.0', 0),
+      scaleZ: ethers.utils.parseUnits('1.0', 0),
+      rotationX: ethers.utils.parseUnits('1.0', 0),
+      rotationY: ethers.utils.parseUnits('1.0', 0),
+      rotationZ: ethers.utils.parseUnits('1.0', 0),
+    })
+  }
+  return dims
+}
+
 describe('Deploying Contracts', async () => {
   let deployVars
   const accounts = []
@@ -54,6 +74,23 @@ describe('Deploying Contracts', async () => {
     it('mints and transfers from one account to another', async () => {
 
     })
+
+    it('updates card customization', async () => {
+      // const dim = {
+      //   surface: ethers.utils.parseUnits('0.0', 3),
+      //   positionX: ethers.utils.parseUnits('1000.0', 3),
+      //   positionY: ethers.utils.parseUnits('2000.0', 3),
+      //   positionZ: ethers.utils.parseUnits('2000.0', 3),
+      //   scaleX: ethers.utils.parseUnits('1000.0', 3),
+      //   scaleY: ethers.utils.parseUnits('1000.0', 3),
+      //   scaleZ: ethers.utils.parseUnits('1000.0', 3),
+      //   rotation: ethers.utils.parseUnits('15000.0', 3)
+      // }
+      // const dimJson = JSON.stringify(dim)
+      const dims = generateDimensions(4)
+
+      await deployVars.snowdropFacet.updateCustomization(['10', '3', '5'], ['1', '2', '1'], dims)
+    })
   })
 
   describe('ItemFacet', async () => {
@@ -84,7 +121,12 @@ describe('Deploying Contracts', async () => {
     })
 
     it('calls drawRandomNumberItem', async () => {
-      await deployVars.vrfFacet.drawRandomNumberItem(10);
+      await deployVars.vrfFacet.drawRandomNumberItem(10)
+    })
+
+    it('calls drawRandomNumberSnowdrop', async() => {
+      expect(await deployVars.vrfFacet.drawRandomNumberSnowdrop('1'))
+        .to.emit(deployVars.vrfFacet, 'VrfRandomNumber')
     })
   })
 })

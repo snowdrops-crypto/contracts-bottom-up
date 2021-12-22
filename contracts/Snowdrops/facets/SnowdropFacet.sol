@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.7;
 
-import {AppStorage, LibAppStorage, Modifiers, Snowdrop} from "../libraries/LibAppStorage.sol";
+import {AppStorage, LibAppStorage, Modifiers, Snowdrop, Item, ItemToSnowdrop, TestStruct} from "../libraries/LibAppStorage.sol";
 import {LibSnowdrop, SnowdropInfo} from "../libraries/LibSnowdrop.sol";
 import {LibStrings} from "../../shared/libraries/LibStrings.sol";
 import {LibERC721} from "../../shared/libraries/LibERC721.sol";
@@ -125,6 +125,23 @@ contract SnowdropFacet {
     );
     LibSnowdrop.transferSnowdrop(_from, _to, _tokenId);
     // UPDATE MARKET LISTING
+  }
+
+  function updateCustomization(uint256[] calldata _itemIds, uint256[] calldata _itemCount, ItemToSnowdrop[] calldata _dims) external {
+    require(_itemIds.length == _itemIds.length, "SnowdropsFacet: itemIds array and itemCount arrays much match in length");
+    uint256 sum = 0;
+    for (uint256 i = 0; i < _itemIds.length; i++) {
+      console.log("itemIds[%s]: %s", i, _itemIds[i]);
+      console.log("itemCount[%s]: %s", i, _itemCount[i]);
+      sum += _itemCount[i];
+    }
+    
+
+    console.log("Total Items: %s", sum);
+    require(sum == _dims.length, "SnowdropsFacet: Array of dimensions does not match the number of items");
+    for (uint256 i = 0; i < sum; i++) {
+      console.log("dims: %s", _dims[i].surface);
+    }
   }
 
   // TESTER FUNCTIONS
